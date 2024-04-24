@@ -1,5 +1,7 @@
 package com.fatih.newsapp.presentation.views
 
+import android.content.Context
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -18,6 +20,7 @@ import com.fatih.newsapp.domain.model.NewsModel
 import com.fatih.newsapp.presentation.viewmodel.NewsViewModel
 import com.fatih.newsapp.util.Constants.API_KEY
 import com.google.android.material.appbar.MaterialToolbar
+import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,13 +29,44 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val newsViewModel: NewsViewModel by viewModels()
     private var countryName = "us"
-    private var categorySelect = "sports"
+    private var categorySelect = "general"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+
+
+
+        binding.btnBusiness.setOnClickListener {
+            categorySelect = "business"
+            newsViewModel.refreshData(country = countryName, apiKey = API_KEY, category =categorySelect)
+        }
+        binding.btnEntertainment.setOnClickListener {
+            categorySelect = "entertainment"
+            newsViewModel.refreshData(country = countryName, apiKey = API_KEY, category =categorySelect)
+        }
+        binding.btnGeneral.setOnClickListener {
+            categorySelect = "general"
+            newsViewModel.refreshData(country = countryName, apiKey = API_KEY, category =categorySelect)
+        }
+        binding.btnHealth.setOnClickListener {
+            categorySelect = "health"
+            newsViewModel.refreshData(country = countryName, apiKey = API_KEY, category =categorySelect)
+        }
+        binding.btnScience.setOnClickListener {
+            categorySelect = "science"
+            newsViewModel.refreshData(country = countryName, apiKey = API_KEY, category =categorySelect)
+        }
+        binding.btnSports.setOnClickListener {
+            categorySelect = "sports"
+            newsViewModel.refreshData(country = countryName, apiKey = API_KEY, category =categorySelect)
+        }
+        binding.btnTech.setOnClickListener {
+            categorySelect = "technology"
+            newsViewModel.refreshData(country = countryName, apiKey = API_KEY, category =categorySelect)
+        }
 
         binding.topAppBar.setOnMenuItemClickListener {menuItem->
             when(menuItem.itemId){
@@ -87,8 +121,8 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-
         binding.apply {
+
 
             newsViewModel.newDb.observe(this@MainActivity, Observer {
                 it.map {
@@ -102,6 +136,7 @@ class MainActivity : AppCompatActivity() {
 
             })
         }
+
 
     }
 
