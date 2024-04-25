@@ -13,6 +13,7 @@ import com.fatih.newsapp.data.repository.NewsRepositoryImpl
 import com.fatih.newsapp.data.remote.ApiClient
 import com.fatih.newsapp.data.remote.ApiServices
 import com.fatih.newsapp.domain.model.NewsModel
+import com.fatih.newsapp.domain.use_case.GetNewsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -25,106 +26,66 @@ import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
-class NewsViewModel @Inject constructor(val repository: NewsRepositoryImpl, application: Application) : BaseViewModel(application){
-
-
-
-    constructor(application: Application) : this(NewsRepositoryImpl(
-        ApiClient().getClient().create(
-            ApiServices::class.java)), application)
-
-    val newsFromDb = MutableLiveData<List<NewsModel>>()
+class NewsViewModel @Inject constructor(val getNewsUseCase : GetNewsUseCase, application: Application) : BaseViewModel(application){
+    constructor(application: Application) : this(GetNewsUseCase(), application)
 
     val newDb = MutableLiveData<List<NewsModel>>()
-
-
     private val _news = MutableLiveData<NewsModel>()
     val currentWeather: LiveData<NewsModel> = _news
+    private val prefsName = "NewsPrefs"
+    private val keyTime = "savedTime"
+    private val prefs: SharedPreferences = application.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
 
-
-    // SharedPreferences anahtarları
-    private val PREFS_NAME = "NewsPrefs"
-    private val KEY_LAST_SYNC_DATE = "lastSyncDate"
-    private val KEY_TIME = "savedTime"
-
-    // SharedPreferences referansı
-    private val prefs: SharedPreferences = application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-
-    // Sistem tarihini ve saati SharedPreferences'e kaydetme
     private fun saveLastSyncDateTime() {
         val currentSaat = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-
-        prefs.edit().putInt(KEY_TIME,currentSaat).apply()
+        prefs.edit().putInt(keyTime,currentSaat).apply()
     }
-    // SharedPreferences'den son senkronizasyon tarihini ve saati alma
     private fun getLastSyncDateTime(): Int? {
-
-        return prefs.getInt(KEY_TIME,0)
+        return prefs.getInt(keyTime,0)
     }
 
-
-    fun executeloadNews(country : String, apiKey : String, category : String) {
-
-
-        repository.getNews(country, apiKey,category).enqueue(object : Callback<NewsDto> {
-            override fun onResponse(call: Call<NewsDto>, response: Response<NewsDto>) {
-                if (response.isSuccessful) {
-                    val newsModel = response.body()?.toNewsModel()
-                    _news.value = newsModel!!
-                    storeInSQLite(response)
-                } else {
-                    // Handle error
+    fun loadNews(country : String, apiKey : String, category : String){
+        getNewsUseCase.executeloadNews(country, apiKey, category){ newsState ->
+            when(newsState){
+                is NewsState.Success -> {
+                    _news.value = newsState.newsModel
+                    storeInSQLite(newsState.newsModel)
+                }
+                is NewsState.Error -> {
+                    //Handle Fail
                 }
             }
-            override fun onFailure(call: Call<NewsDto>, t: Throwable) {
-                // Handle failure
-            }
-        })
+        }
     }
 
-     fun showNews(response: Response<NewsDto>){
-        val newsModel = response.body()?.toNewsModel()
-        _news.value = newsModel!!
-
+    fun showNews(newsModel: NewsModel){
+        _news.value = newsModel
     }
-    private fun showCountries(countryList: List<NewsModel>) {
-        newDb.value = countryList
+    private fun showNewsDb(newsList: List<NewsModel>) {
+        newDb.value = newsList
     }
-
-
-    private fun storeInSQLite(response: Response<NewsDto>){
-        val newsModel = response.body()?.toNewsModel()
-        _news.value = newsModel!!
-
+    private fun storeInSQLite(newsModel: NewsModel){
+        _news.value = newsModel
         val newsList: MutableList<NewsModel> = mutableListOf()
-        response.body()?.toNewsModel()?.let { newsList.add(it) }
-
-
+        newsList.add(newsModel)
         saveLastSyncDateTime()
-        //println(getLastSyncDateTime())
-
-
 
         launch {
             val dao = NewsDatabase(getApplication()).newsDao()
             dao.deleteAllNews()
-
 
             val listLong = dao.insertAll(*newsList.toTypedArray())
             var i = 0
             while (i <newsList.size){
                 newsList[i].uuid = listLong[i].toInt()
             }
-
-            showNews(response)
+            showNews(newsModel)
         }
     }
 
-
     fun refreshData(country: String,apiKey: String,category: String){
         viewModelScope.launch {
-            executeloadNews(country, apiKey, category)
-
+            loadNews(country, apiKey, category)
         }
     }
 
@@ -132,17 +93,15 @@ class NewsViewModel @Inject constructor(val repository: NewsRepositoryImpl, appl
         viewModelScope.launch {
 
             val newsql = NewsDatabase(getApplication()).newsDao().getAllNews()
-
             val prefsaat = getLastSyncDateTime()!!
             val currentSaat = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
             val snc = Math.abs(currentSaat-prefsaat)
 
-
             if (newsql.isEmpty() || snc>=2){
-                executeloadNews(country, apiKey,category)
+                loadNews(country, apiKey,category)
             }
             else{
-                showCountries(newsql)
+                showNewsDb(newsql)
             }
 
         }

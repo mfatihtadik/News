@@ -20,10 +20,10 @@ import com.fatih.newsapp.domain.model.NewsModel
 import com.fatih.newsapp.presentation.viewmodel.NewsViewModel
 import com.fatih.newsapp.util.Constants.API_KEY
 import com.google.android.material.appbar.MaterialToolbar
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
-
 
     private val newsAdapter by lazy {NewsAdapter()}
     private lateinit var binding: ActivityMainBinding
@@ -35,9 +35,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-
-
 
         binding.btnBusiness.setOnClickListener {
             categorySelect = "business"
@@ -96,49 +93,37 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-
         binding.swipeRefreshLayout.setOnRefreshListener {
             binding.newsRcycler.visibility = View.GONE
             newsViewModel.refreshData(country = countryName, apiKey = API_KEY,category =categorySelect )
             binding.swipeRefreshLayout.isRefreshing = false
             binding.newsRcycler.visibility = View.VISIBLE
         }
-
-
         binding.apply {
             newsViewModel.fetchNews(country = countryName, apiKey = API_KEY,category =categorySelect )
             newsViewModel.currentWeather.observe(this@MainActivity, Observer {
                 it?.let {
-                    //newsAdapter.differ.submitList(it.articles)
                     newsAdapter.differ.submitList(it.articles)
                     newsRcycler.apply {
                         layoutManager = LinearLayoutManager(this@MainActivity,LinearLayoutManager.VERTICAL,false)
                         adapter = newsAdapter
-
                     }
                 }
             })
         }
-
-
         binding.apply {
-
-
             newsViewModel.newDb.observe(this@MainActivity, Observer {
                 it.map {
                     newsAdapter.differ.submitList(it.articles)
                     newsRcycler.apply {
                         layoutManager = LinearLayoutManager(this@MainActivity,LinearLayoutManager.VERTICAL,false)
                         adapter = newsAdapter
-
                     }
                 }
-
             })
         }
 
 
     }
-
 }
 

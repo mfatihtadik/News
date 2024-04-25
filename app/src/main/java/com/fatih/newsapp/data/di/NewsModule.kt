@@ -1,10 +1,10 @@
 package com.fatih.newsapp.data.di
 
-import android.app.Application
+
 import com.fatih.newsapp.data.repository.NewsRepositoryImpl
 import com.fatih.newsapp.data.remote.ApiServices
 import com.fatih.newsapp.domain.repository.NewsRepository
-import com.fatih.newsapp.presentation.viewmodel.NewsViewModel
+import com.fatih.newsapp.domain.use_case.GetNewsUseCase
 import com.fatih.newsapp.util.Constants.BASE_URL
 import dagger.Module
 import dagger.Provides
@@ -17,8 +17,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NewsModule {
-
-
     @Provides
     @Singleton
     fun provideNewsApi() : ApiServices {
@@ -29,7 +27,6 @@ object NewsModule {
             .create(ApiServices::class.java)
     }
 
-
     @Provides
     @Singleton
     fun provideNewsRepository(api : ApiServices) : NewsRepository{
@@ -38,9 +35,8 @@ object NewsModule {
 
     @Provides
     @Singleton
-    fun provideNewsViewModel(repository: NewsRepositoryImpl,application: Application): NewsViewModel {
-        return NewsViewModel(repository,application)
+    fun provideGetNewsUseCase(repository: NewsRepositoryImpl):GetNewsUseCase{
+        return GetNewsUseCase(repository)
     }
-
 
 }

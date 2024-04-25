@@ -106,15 +106,8 @@
                     android:textSize="12sp"
                     android:layout_margin="3dp"
                     android:layout_height="match_parent"/>
-
-
-
-
             </LinearLayout>
-
         </HorizontalScrollView>
-
-
 
     </com.google.android.material.appbar.AppBarLayout>
 
