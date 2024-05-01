@@ -1,28 +1,19 @@
 package com.fatih.newsapp.presentation.views
 
-import android.content.Context
-import android.content.SharedPreferences
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
-import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.fatih.newsapp.R
-import com.fatih.newsapp.data.remote.dto.NewsDto
 import com.fatih.newsapp.databinding.ActivityMainBinding
-import com.fatih.newsapp.databinding.RecyclerRowBinding
 import com.fatih.newsapp.domain.adapter.NewsAdapter
-import com.fatih.newsapp.domain.model.NewsModel
 import com.fatih.newsapp.presentation.viewmodel.NewsViewModel
 import com.fatih.newsapp.util.Constants.API_KEY
-import com.google.android.material.appbar.MaterialToolbar
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.Calendar
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private val newsAdapter by lazy {NewsAdapter()}
@@ -35,6 +26,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
 
         binding.btnBusiness.setOnClickListener {
             categorySelect = "business"

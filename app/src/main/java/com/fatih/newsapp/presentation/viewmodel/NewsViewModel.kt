@@ -6,28 +6,16 @@ import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.fatih.newsapp.data.remote.dto.NewsDto
-import com.fatih.newsapp.data.remote.dto.toNewsModel
 import com.fatih.newsapp.data.local.NewsDatabase
-import com.fatih.newsapp.data.repository.NewsRepositoryImpl
-import com.fatih.newsapp.data.remote.ApiClient
-import com.fatih.newsapp.data.remote.ApiServices
 import com.fatih.newsapp.domain.model.NewsModel
 import com.fatih.newsapp.domain.use_case.GetNewsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
 class NewsViewModel @Inject constructor(val getNewsUseCase : GetNewsUseCase, application: Application) : BaseViewModel(application){
-    constructor(application: Application) : this(GetNewsUseCase(), application)
 
     val newDb = MutableLiveData<List<NewsModel>>()
     private val _news = MutableLiveData<NewsModel>()

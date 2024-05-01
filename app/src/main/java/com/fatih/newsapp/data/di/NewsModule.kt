@@ -1,8 +1,8 @@
 package com.fatih.newsapp.data.di
 
 
-import com.fatih.newsapp.data.repository.NewsRepositoryImpl
 import com.fatih.newsapp.data.remote.ApiServices
+import com.fatih.newsapp.data.repository.NewsRepositoryImpl
 import com.fatih.newsapp.domain.repository.NewsRepository
 import com.fatih.newsapp.domain.use_case.GetNewsUseCase
 import com.fatih.newsapp.util.Constants.BASE_URL
@@ -38,5 +38,14 @@ object NewsModule {
     fun provideGetNewsUseCase(repository: NewsRepositoryImpl):GetNewsUseCase{
         return GetNewsUseCase(repository)
     }
+
+    /*
+    @Provides
+    @Singleton
+    fun provideAppContext(app:NewsApplication) : Context = app.applicationContext
+
+     */
+
+
 
 }

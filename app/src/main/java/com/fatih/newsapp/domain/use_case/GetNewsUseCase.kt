@@ -1,6 +1,4 @@
 package com.fatih.newsapp.domain.use_case
-import com.fatih.newsapp.data.remote.ApiClient
-import com.fatih.newsapp.data.remote.ApiServices
 import com.fatih.newsapp.data.remote.dto.NewsDto
 import com.fatih.newsapp.data.remote.dto.toNewsModel
 import com.fatih.newsapp.data.repository.NewsRepositoryImpl
@@ -11,8 +9,6 @@ import retrofit2.Response
 import javax.inject.Inject
 
 class GetNewsUseCase @Inject constructor(val repository : NewsRepositoryImpl) {
-
-    constructor() : this(NewsRepositoryImpl(ApiClient().getClient().create(ApiServices::class.java)))
 
     fun executeloadNews(country : String, apiKey : String, category : String, callback: (NewsState) -> Unit) {
         repository.getNews(country, apiKey,category).enqueue(object : Callback<NewsDto> {
